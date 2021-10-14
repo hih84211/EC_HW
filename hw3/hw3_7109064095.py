@@ -24,10 +24,11 @@ def super_SiBaLa(dice, side, trial):
 
 
 if __name__=='__main__':
+    trials = 100000
     prng = Random()
     # prng.seed(797)
-    uni_list = list(prng.uniform(.0, 1.) for i in range(10000))
-    normal_list = list(prng.gauss(mu=5., sigma=2.) for i in range(10000))
+    uni_list = list(prng.uniform(.0, 1.) for i in range(trials))
+    normal_list = list(prng.gauss(mu=5., sigma=2.) for i in range(trials))
     # print(random_list)
     plt.hist(uni_list, bins=50, density=True, facecolor='g')
     plt.axis([0, 1, 0, 2])
@@ -40,10 +41,10 @@ if __name__=='__main__':
 
     # 2d6 1d12 2d10 1d20
 
-    dd6 = super_SiBaLa(dice=2, side=6, trial=10000)
-    d12 = super_SiBaLa(1, 12, 10000)
-    dd10 = super_SiBaLa(2, 10, 10000)
-    d20 = super_SiBaLa(1, 20, 10000)
+    dd6 = super_SiBaLa(dice=2, side=6, trial=trials)
+    d12 = super_SiBaLa(1, 12, trials)
+    dd10 = super_SiBaLa(2, 10, trials)
+    d20 = super_SiBaLa(1, 20, trials)
 
     if dd6 is not None:
         plt.hist(dd6, bins=50, density=True, facecolor='g')
@@ -56,7 +57,7 @@ if __name__=='__main__':
         plt.show()
 
     if dd6 is not None:
-        plt.hist(dd6, bins=50, density=True, facecolor='g')
+        plt.hist(dd10, bins=50, density=True, facecolor='g')
         plt.title('2D10')
         plt.show()
 
