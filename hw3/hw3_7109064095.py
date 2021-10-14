@@ -38,7 +38,6 @@ if __name__=='__main__':
     plt.title('Normal distribution')
     plt.show()
 
-
     # 2d6 1d12 2d10 1d20
 
     dd6 = super_SiBaLa(dice=2, side=6, trial=10000)
