@@ -93,10 +93,11 @@ def printStats(pop, gen):
         if p.fit > maxval.fit:
             maxval = p
         # print(str(p.x)+'\t'+str(p.fit))
-    
+    avgval /= len(pop)
     print('Max fitness', maxval)
-    print('Avg fitness', avgval/len(pop))
+    print('Avg fitness', avgval)
     print('')
+    return [maxval, avgval]
 
 
 # A trivial Individual class
@@ -115,6 +116,7 @@ def ev1(cfg):
     # start random number generator
     prng = Random()
     prng.seed(cfg.randomSeed)
+    plt_factor = 5
     
     # random initialization of population
     population = []
@@ -143,7 +145,7 @@ def ev1(cfg):
         iworst = findWorstIndex(population)
         if child.fit > population[iworst].fit:
             population[iworst] = child
-        if i % 10 == 0:
+        if i % plt_factor == 0:
             print('plot call')
             plot(population)
         
@@ -151,7 +153,7 @@ def ev1(cfg):
         printStats(population, i+1)
 
 
-def plot(pop):
+def plot(pop, info):
     x = np.linspace(-120, 120, 200)
     y = fitnessFunc(x)
     plt.plot(x, y, 'g')
