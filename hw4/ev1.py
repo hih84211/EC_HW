@@ -97,7 +97,7 @@ def printStats(pop, gen):
     print('Max fitness', maxval.fit)
     print('Avg fitness', avgval)
     print('')
-    return [maxval.fit, avgval]
+    return [maxval.fit, avgval, gen]
 
 
 # A trivial Individual class
@@ -146,7 +146,7 @@ def ev1(cfg):
         # print stats
         state = printStats(population, i+1)
 
-        if i % plt_factor == 0:
+        if i % plt_factor == 0 or i+1==cfg.generationCount:
             print('plot call')
             plot(population, state)
 
@@ -155,11 +155,9 @@ def plot(pop, info):
     x = np.linspace(-120, 120, 200)
     y = fitnessFunc(x)
     plt.plot(x, y, 'g')
+    plt.title('Generation: '+str(info[2]))
     plt.text(-15, -30, 'Max fitness: '+str(info[0]), fontsize=10, style='oblique')
     plt.text(-15, -33, 'Avg fitness: '+str(info[1]), fontsize=10, style='oblique')
-    # fig, ax = plt.subplots()
-    # rects1 = ax.bar(x - width / 2, men_means, width, label='Men')
-    # rects2 = ax.bar(x + width / 2, women_means, width, label='Women')
     for i in range(len(pop)):
         plt.plot(pop[i].x, pop[i].fit, 'bo')
     plt.show()
