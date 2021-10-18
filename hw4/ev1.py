@@ -94,10 +94,10 @@ def printStats(pop, gen):
             maxval = p
         # print(str(p.x)+'\t'+str(p.fit))
     avgval /= len(pop)
-    print('Max fitness', maxval)
+    print('Max fitness', maxval.fit)
     print('Avg fitness', avgval)
     print('')
-    return [maxval, avgval]
+    return [maxval.fit, avgval]
 
 
 # A trivial Individual class
@@ -106,9 +106,6 @@ class Individual:
         self.x = x
         self.fit = fit
 
-    def __str__(self):
-        return {'x': self.x, 'fit': self.fit}.__str__()
-
 
 # EV1: The simplest EA ever!
 #            
@@ -116,7 +113,7 @@ def ev1(cfg):
     # start random number generator
     prng = Random()
     prng.seed(cfg.randomSeed)
-    plt_factor = 5
+    plt_factor = 10
     
     # random initialization of population
     population = []
@@ -145,18 +142,24 @@ def ev1(cfg):
         iworst = findWorstIndex(population)
         if child.fit > population[iworst].fit:
             population[iworst] = child
-        if i % plt_factor == 0:
-            print('plot call')
-            plot(population)
         
         # print stats
-        printStats(population, i+1)
+        state = printStats(population, i+1)
+
+        if i % plt_factor == 0:
+            print('plot call')
+            plot(population, state)
 
 
 def plot(pop, info):
     x = np.linspace(-120, 120, 200)
     y = fitnessFunc(x)
     plt.plot(x, y, 'g')
+    plt.text(-15, -30, 'Max fitness: '+str(info[0]), fontsize=10, style='oblique')
+    plt.text(-15, -33, 'Avg fitness: '+str(info[1]), fontsize=10, style='oblique')
+    # fig, ax = plt.subplots()
+    # rects1 = ax.bar(x - width / 2, men_means, width, label='Men')
+    # rects2 = ax.bar(x + width / 2, women_means, width, label='Women')
     for i in range(len(pop)):
         plt.plot(pop[i].x, pop[i].fit, 'bo')
     plt.show()
