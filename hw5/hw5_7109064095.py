@@ -31,7 +31,7 @@ class EV1_Config:
                'maxLimit': (float, True),
                'mutationProb': (float, True),
                'mutationStddev': (float, True)}
-     
+
     # constructor
     def __init__(self, in_file_name):
         # read YAML config and get EC_Engine section
@@ -41,16 +41,16 @@ class EV1_Config:
         eccfg = ymlcfg.get(self.sectionName, None)
         if eccfg is None:
             raise Exception('Missing EV1 section in cfg file')
-         
+
         # iterate over options
         for opt in self.options:
             if opt in eccfg:
                 optval = eccfg[opt]
- 
+
                 # verify parameter type
                 if type(optval) != self.options[opt][0]:
                     raise Exception('Parameter "{}" has wrong type'.format(opt))
-                 
+
                 # create attributes on the fly
                 setattr(self, opt, optval)
             else:
@@ -58,18 +58,18 @@ class EV1_Config:
                     raise Exception('Missing mandatory parameter "{}"'.format(opt))
                 else:
                     setattr(self, opt, None)
-     
+
     # string representation for class data
     def __str__(self):
         return str(yaml.dump(self.__dict__, default_flow_style=False))
-         
+
 
 # Simple 1-D fitness function example
-#        
+#
 def fitnessFunc(x):
     # return 50.0 - x*x
     pi = np.pi
-    return -10 - np.square(0.04*x) + 10*np.cos(0.04*pi * x)
+    return -10 - np.square(0.04 * x) + 10 * np.cos(0.04 * pi * x)
 
 
 # Find index of worst individual in population
@@ -108,20 +108,20 @@ class Individual:
 
 
 # EV1: The simplest EA ever!
-#            
+#
 def ev1(cfg):
     # start random number generator
     prng = Random()
     prng.seed(cfg.randomSeed)
     plt_factor = 10
-    
+
     # random initialization of population
     population = []
     for i in range(cfg.populationSize):
         x = prng.uniform(cfg.minLimit, cfg.maxLimit)
         ind = Individual(x, fitnessFunc(x))
         population.append(ind)
-        
+
     # print stats
     printStats(population, 0)
 
@@ -131,7 +131,7 @@ def ev1(cfg):
         parents = [prng.sample(population, 2) for i in range(5)]
 
         # recombine using stochastic arithmetic crossover
-        childsx=[]
+        childsx = []
 
         for j in range(len(parents)):
             alpha = prng.uniform(0, 1)
@@ -141,7 +141,6 @@ def ev1(cfg):
                 unborn = prng.normalvariate(unborn, cfg.mutationStddev)
             childsx.append(unborn)
 
-            
         # survivor selection: replace worst
         for j in range(len(childsx)):
             child = Individual(childsx[j], fitnessFunc(childsx[j]))
@@ -149,11 +148,10 @@ def ev1(cfg):
             if child.fit > population[iworst].fit:
                 population[iworst] = child
 
-        
         # print stats
-        state = printStats(population, i+1)
+        state = printStats(population, i + 1)
 
-        if i % plt_factor == 0 or i+1==cfg.generationCount:
+        if i % plt_factor == 0 or i + 1 == cfg.generationCount:
             print('plot call')
             plot(population, state)
 
@@ -162,9 +160,9 @@ def plot(pop, info):
     x = np.linspace(-120, 120, 200)
     y = fitnessFunc(x)
     plt.plot(x, y, 'g')
-    plt.title('Generation: '+str(info[2]))
-    plt.text(-15, -30, 'Max fitness: '+str(info[0]), fontsize=10, style='oblique')
-    plt.text(-15, -33, 'Avg fitness: '+str(info[1]), fontsize=10, style='oblique')
+    plt.title('Generation: ' + str(info[2]))
+    plt.text(-15, -30, 'Max fitness: ' + str(info[0]), fontsize=10, style='oblique')
+    plt.text(-15, -33, 'Avg fitness: ' + str(info[1]), fontsize=10, style='oblique')
     for i in range(len(pop)):
         plt.plot(pop[i].x, pop[i].fit, 'bo')
     plt.show()
@@ -176,7 +174,7 @@ def plot(pop, info):
 def main(argv=None):
     if argv is None:
         argv = sys.argv
-        
+
     try:
         #
         # get command-line options
@@ -186,23 +184,23 @@ def main(argv=None):
         parser.add_option("-q", "--quiet", action="store_true", dest="quietMode", help="quiet mode", default=False)
         parser.add_option("-d", "--debug", action="store_true", dest="debugMode", help="debug mode", default=False)
         (options, args) = parser.parse_args(argv)
-        
+
         # validate options
         if options.inputFileName is None:
             raise Exception("Must specify input file name using -i or --input option.")
-        
+
         # Get EV1 config params
         cfg = EV1_Config(options.inputFileName)
-        
+
         # print config params
         print(cfg)
-                    
+
         # run EV1
         ev1(cfg)
-        
-        if not options.quietMode:                    
-            print('EV1 Completed!')    
-    
+
+        if not options.quietMode:
+            print('EV1 Completed!')
+
     except Exception as info:
         if 'options' in vars() and options.debugMode:
             from traceback import print_exc
