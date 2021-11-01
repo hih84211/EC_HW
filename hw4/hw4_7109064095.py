@@ -1,7 +1,7 @@
 #
 # ev1.py: The simplest EA ever!
 #
-# To run: python ev1.py --input ev1_example.cfg
+# To run: python ev1.py --input ev2_example.cfg
 #         python ev1.py --input my_params.cfg
 #
 # Note: EV1 is fairly naive and has many fundamental limitations,
@@ -212,5 +212,5 @@ def main(argv=None):
 
 
 if __name__ == '__main__':
-    main(['-i', './ev1_example.cfg'])
+    main(['-i', './ev2_example.cfg'])
 

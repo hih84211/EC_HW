@@ -1,13 +1,3 @@
-#
-# ev1.py: The simplest EA ever!
-#
-# To run: python ev1.py --input ev1_example.cfg
-#         python ev1.py --input my_params.cfg
-#
-# Note: EV1 is fairly naive and has many fundamental limitations,
-#           however, even though it's simple, it works!
-#
-
 import optparse
 import sys
 import yaml
@@ -17,20 +7,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-# EV1 Config class
-class EV1_Config:
+# EV2 Config class
+class EV2_Config:
     """
-    EV1 configuration class
+    EV2 configuration class
     """
     # class variables
-    sectionName = 'EV1'
+    sectionName = 'EV2'
     options = {'populationSize': (int, True),
                'generationCount': (int, True),
                'randomSeed': (int, True),
                'minLimit': (float, True),
-               'maxLimit': (float, True),
-               'mutationProb': (float, True),
-               'mutationStddev': (float, True)}
+               'maxLimit': (float, True),}
 
     # constructor
     def __init__(self, in_file_name):
@@ -40,7 +28,7 @@ class EV1_Config:
         infile.close()
         eccfg = ymlcfg.get(self.sectionName, None)
         if eccfg is None:
-            raise Exception('Missing EV1 section in cfg file')
+            raise Exception('Missing EV2 section in cfg file')
 
         # iterate over options
         for opt in self.options:
@@ -105,15 +93,32 @@ class Individual:
     def __init__(self, x=0, fit=0):
         self.x = x
         self.fit = fit
+        self.prng = Random()
+
+    def crossover(self, other):
+        alpha = self.prng.uniform(0, 1)
+        childx = (alpha*self.x) + ((1 - alpha)*other.x)
+        return childx
+
+    def mutate(self, func, stddev):
+        new_x = self.x + stddev*self.prng.normalvariate(0, 1)
+        self.x = new_x
+        self.fit = func(new_x)
 
 
-# EV1: The simplest EA ever!
+
+# EV2: Not the simplest EA ever!
 #
-def ev1(cfg):
+def ev2(cfg):
     # start random number generator
     prng = Random()
     prng.seed(cfg.randomSeed)
-    plt_factor = 10
+    plt_factor = 10    # 隔幾代秀一次圖片
+    tau = 1
+    mute_rate = .75    # 突變機率初始值
+    stddev = 1    # 標準差初始值
+    max_stddev = 2.5
+    min_stddev = .5
 
     # random initialization of population
     population = []
@@ -131,22 +136,34 @@ def ev1(cfg):
         parents = [prng.sample(population, 2) for i in range(5)]
 
         # recombine using stochastic arithmetic crossover
-        childsx = []
+        childs = []
 
         for j in range(len(parents)):
-            alpha = prng.uniform(0, 1)
-            unborn = alpha * parents[j][0].x + (1 - alpha) * parents[j][1].x
-            # random mutation using normal distribution
-            if prng.random() <= cfg.mutationProb:
-                unborn = prng.normalvariate(unborn, cfg.mutationStddev)
-            childsx.append(unborn)
+            # unborn = alpha * parents[j][0].x + (1 - alpha) * parents[j][1].x
+            ux = parents[j][0].crossover(parents[j][1])
+            unborn = Individual(ux, fitnessFunc(ux))
+            # random mutation using uncorrelated mutation
+            if prng.random() <= mute_rate:
+                # mutate sigma first
+                new_stddev = stddev * math.exp(tau * prng.normalvariate(0, 1))
+                if new_stddev < min_stddev:
+                    new_stddev = min_stddev
+                elif new_stddev > max_stddev:
+                    new_stddev = max_stddev
+                # mutate child then
+                unborn.mutate(fitnessFunc, new_stddev)
+            childs.append(unborn)
 
         # survivor selection: replace worst
-        for j in range(len(childsx)):
-            child = Individual(childsx[j], fitnessFunc(childsx[j]))
+        for j in range(len(childs)):
+            child = childs[j]
             iworst = findWorstIndex(population)
             if child.fit > population[iworst].fit:
                 population[iworst] = child
+
+        # Mutate rate adjustment
+        # 課本3.7 Deterministic method，初始值太小的話容易掉入區域最佳解
+        mute_rate *= 1 - (0.8*i)/cfg.populationSize
 
         # print stats
         state = printStats(population, i + 1)
@@ -189,14 +206,14 @@ def main(argv=None):
         if options.inputFileName is None:
             raise Exception("Must specify input file name using -i or --input option.")
 
-        # Get EV1 config params
-        cfg = EV1_Config(options.inputFileName)
+        # Get EV2 config params
+        cfg = EV2_Config(options.inputFileName)
 
         # print config params
         print(cfg)
 
         # run EV1
-        ev1(cfg)
+        ev2(cfg)
 
         if not options.quietMode:
             print('EV1 Completed!')
@@ -210,5 +227,5 @@ def main(argv=None):
 
 
 if __name__ == '__main__':
-    main(['-i', './ev1_example.cfg'])
+    main(['-i', './ev2_example.cfg', '-d'])
 
