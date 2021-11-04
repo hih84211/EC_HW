@@ -67,17 +67,7 @@ def binary_tournament(pop_in, prng):
 # This is somewhat like having a selection-only EA without any stochastic variation operators
 #
 for i in range(generations):
-    print(pop)
+    # print(pop)
     plt_hist(pop, i)
 
     pop = binary_tournament(pop, prng)
-'''
-rng = Random()
-lst = [(rng.randint(0, 1023), rng.randint(0, 511)) for i in range(10)]
-lst2 = [rng.randint(0, 100) for i in range(10)]
-lst2.sort(reverse=True)
-print(lst2)
-print([lst2[i:i + 2] for i in range(0, len(lst2), 2)])
-random.shuffle(lst2)
-print([lst2[i:i + 2] for i in range(0, len(lst2), 2)])
-'''
