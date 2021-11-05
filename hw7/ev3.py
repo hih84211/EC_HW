@@ -19,7 +19,7 @@ from random import Random
 from Population import *
 
 
-#EV3 Config class 
+# EV3 Config class
 class EV3_Config:
     """
     EV3 configuration class
