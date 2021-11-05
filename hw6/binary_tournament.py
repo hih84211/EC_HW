@@ -4,10 +4,11 @@
 
 from random import Random
 import matplotlib.pyplot as plt
+import time
 
 #A few useful constants
 #
-pop_size=20
+pop_size=2000000
 generations=10
 fit_range=40
 
@@ -81,10 +82,16 @@ def binary_tournament(pop_in, prng):
 # to the initial population and plot the resulting fitness histograms.
 # This is somewhat like having a selection-only EA without any stochastic variation operators
 #
+
+tic = time.time()
 for i in range(generations):
     print(pop)
     plt_hist(pop,i)
     
     pop=binary_tournament(pop, prng)
+
+toc = time.time()
+
+print(toc-tic)
 
   
