@@ -5,7 +5,7 @@
 
 import math
 
-#A simple 1-D Individual class
+# A simple 1-D Individual class
 class Individual:
     """
     Individual
@@ -36,40 +36,47 @@ class Individual:
         other.fit = None
     
     def mutate(self):
-        self.sigma=self.sigma*math.exp(self.learningRate*self.normprng.normalvariate(0,1))
-        if self.sigma < self.minSigma: self.sigma=self.minSigma
-        if self.sigma > self.maxSigma: self.sigma=self.maxSigma
+        self.sigma = self.sigma*math.exp(self.learningRate*self.normprng.normalvariate(0, 1))
+        if self.sigma < self.minSigma:
+            self.sigma = self.minSigma
+        if self.sigma > self.maxSigma:
+            self.sigma = self.maxSigma
 
-        self.x=self.x+(self.maxLimit-self.minLimit)*self.sigma*self.normprng.normalvariate(0,1)
-        self.fit=None
+        self.x = self.x+(self.maxLimit-self.minLimit)*self.sigma*self.normprng.normalvariate(0, 1)
+        self.fit = None
     
     def evaluateFitness(self):
-        if self.fit == None: self.fit=self.__class__.fitFunc(self.x)
+        if self.fit == None:
+            self.fit = self.__class__.fitFunc(self.x)
         
     def __str__(self):
-        return '%0.8e'%self.x+'\t'+'%0.8e'%self.fit+'\t'+'%0.8e'%self.sigma
+        return '%0.8e' % self.x+'\t'+'%0.8e' % self.fit+'\t'+'%0.8e' % self.sigma
 
 
 class Lattice(Individual):
     def __init__(self, particles=None):
         super().__init__()
         self.x = particles
+        self.length = len(particles)
 
     def crossover(self, other):
-        alpha = int(self.uniprng.random()*len(other))
+        alpha = int(self.uniprng.random()*self.length)
         tmp1 = self.x[:alpha]
         tmp2 = other.x[alpha:]
         self.x = tmp1.extend(tmp2)
 
     # 非 self-adaptive
     def mutate(self):
-        self.sigma = self.sigma * math.exp(self.learningRate * self.normprng.normalvariate(0, 1))
+        self.sigma = self.sigma*math.exp(self.learningRate*self.normprng.normalvariate(0, 1))
         if self.sigma < self.minSigma:
             self.sigma = self.minSigma
         if self.sigma > self.maxSigma:
             self.sigma = self.maxSigma
 
-        for i in self.x:
-            # 要避免突變回自己
+        for i in range(self.length):
+            # 突變，while迴圈為避免突變回自己
             if self.sigma > self.uniprng.random():
-                i = self.uniprng.randint(0, 2)
+                tmp = self.uniprng.randint(0, 2)
+                while tmp == self.x[i]:
+                    tmp = self.uniprng.randint(0, 2)
+                self.x[i] = tmp

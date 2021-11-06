@@ -198,12 +198,5 @@ def total_engergy(lattice):
 
 
 if __name__ == '__main__':
-    lattice = [2, 0, 1, 1]
-    print(total_engergy(lattice))
-    l1 = [1, 2, 3]
-    l1.extend([4, 5, 6])
-    print(l1[:2])
-    print(l1[2:])
-    print(int())
     main(['-i', 'ev3_example.cfg'])
 

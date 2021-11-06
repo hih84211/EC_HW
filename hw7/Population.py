@@ -8,60 +8,61 @@ import math
 from operator import attrgetter
 from Individual import *
 
+
 class Population:
     """
     Population
     """
-    uniprng=None
-    crossoverFraction=None
+    uniprng = None
+    crossoverFraction = None
     
     def __init__(self, populationSize):
         """
         Population constructor
         """
-        self.population=[]
+        self.population = []
         for i in range(populationSize):
             self.population.append(Individual())                                                                                                                                        
 
     def __len__(self):
         return len(self.population)
     
-    def __getitem__(self,key):
+    def __getitem__(self, key):
         return self.population[key]
     
-    def __setitem__(self,key,newValue):
-        self.population[key]=newValue
+    def __setitem__(self, key, newValue):
+        self.population[key] = newValue
         
     def copy(self):
         return copy.deepcopy(self)
             
     def evaluateFitness(self):
-        for individual in self.population: individual.evaluateFitness()
+        for individual in self.population:
+            individual.evaluateFitness()
             
-    def mutate(self):     
+    def mutate(self):
         for individual in self.population:
             individual.mutate()
             
     def crossover(self):
-        indexList1=list(range(len(self)))
-        indexList2=list(range(len(self)))
+        indexList1 = list(range(len(self)))
+        indexList2 = list(range(len(self)))
         self.uniprng.shuffle(indexList1)
         self.uniprng.shuffle(indexList2)
             
         if self.crossoverFraction == 1.0:             
-            for index1,index2 in zip(indexList1,indexList2):
+            for index1, index2 in zip(indexList1, indexList2):
                 self[index1].crossover(self[index2])
         else:
-            for index1,index2 in zip(indexList1,indexList2):
-                rn=self.uniprng.random()
+            for index1, index2 in zip(indexList1, indexList2):
+                rn = self.uniprng.random()
                 if rn < self.crossoverFraction:
                     self[index1].crossover(self[index2])        
-        
-            
+
     def conductTournament(self):
         # binary tournament
-        indexList1=list(range(len(self)))
-        indexList2=list(range(len(self)))
+        indexList1 = list(range(len(self)))
+        indexList2 = list(range(len(self)))
         
         self.uniprng.shuffle(indexList1)
         self.uniprng.shuffle(indexList2)
