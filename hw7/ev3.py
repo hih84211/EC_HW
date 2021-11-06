@@ -182,5 +182,5 @@ def main(argv=None):
     
 
 if __name__ == '__main__':
-    main()
+    main(['-i', 'ev3_example.cfg', '-d'])
     

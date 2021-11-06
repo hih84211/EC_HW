@@ -16,6 +16,7 @@ import sys
 import yaml
 import math
 from random import Random
+import copy
 from Population import *
 
 
@@ -31,7 +32,11 @@ class EV3_Config:
                'randomSeed': (int, True),
                'crossoverFraction': (float, True),
                'minLimit': (float, True),
-               'maxLimit': (float, True)}
+               'maxLimit': (float, True),
+               'selfEnergyVector': (list, True),
+               'interactionEnergyMatrix': (list, True),
+               'latticeLength': (int, True),
+               'numParticleTypes': (int, True)}
 
     # constructor
     def __init__(self, inFileName):
@@ -69,21 +74,44 @@ class EV3_Config:
 def fitnessFunc(x):
     return -10.0 - (0.04 * x) ** 2 + 10.0 * math.cos(0.04 * math.pi * x)
 
+def total_engergy(lattice, u, t):
+    u = u
+    t = t
+    size = len(lattice)
+    self_eng = 0
+    mut_eng = 0
+    for i in range(size):
+        self_eng += u[lattice[i]]
+        if i > 0:
+            mut_eng += t[lattice[i-1]][lattice[i]]
+        if i < (size - 1):
+            mut_eng += t[lattice[i]][lattice[i+1]]
+    return self_eng + mut_eng
+
 
 # Print some useful stats to screen
-def printStats(pop, gen):
+def printStats(minmax, pop, gen):
     print('Generation:', gen)
     avgval = 0
-    maxval = pop[0].fit
+    mval = pop[0].fit
     sigma = pop[0].sigma
-    for ind in pop:
-        avgval += ind.fit
-        if ind.fit > maxval:
-            maxval = ind.fit
-            sigma = ind.sigma
-        print(ind)
+    if minmax == 0:
+        for ind in pop:
+            avgval += ind.fit
+            if ind.fit < mval:
+                mval = ind.fit
+                sigma = ind.sigma
+            print(ind)
+        print('Min fitness', mval)
+    elif minmax == 1:
+        for ind in pop:
+            avgval += ind.fit
+            if ind.fit > mval:
+                mval = ind.fit
+                sigma = ind.sigma
+            #print(ind)
+        print('Max fitness', mval)
 
-    print('Max fitness', maxval)
     print('Sigma', sigma)
     print('Avg fitness', avgval / len(pop))
     print('')
@@ -91,7 +119,7 @@ def printStats(pop, gen):
 
 # EV3:
 #
-def ev3(cfg):
+def ev3_problem1(cfg):
     # start random number generators
     uniprng = Random()
     uniprng.seed(cfg.randomSeed)
@@ -100,24 +128,26 @@ def ev3(cfg):
 
     # set static params on classes
     # (probably not the most elegant approach, but let's keep things simple...)
-    Individual.minLimit = cfg.minLimit
-    Individual.maxLimit = cfg.maxLimit
-    Individual.fitFunc = fitnessFunc
-    Individual.uniprng = uniprng
-    Individual.normprng = normprng
+    Lattice.selfEnergyVector = cfg.selfEnergyVector
+    Lattice.interactionEnergyMatrix = cfg.interactionEnergyMatrix
+    Lattice.latticeLength = cfg.latticeLength
+    Lattice.numParticleTypes = cfg.numParticleTypes
+    Lattice.fitFunc = total_engergy
+    Lattice.uniprng = uniprng
+    Lattice.normprng = normprng
     Population.uniprng = uniprng
     Population.crossoverFraction = cfg.crossoverFraction
 
     # create initial Population (random initialization)
-    population = Population(cfg.populationSize)
+    population = Population(cfg.populationSize, 1, 0)
 
     # print initial pop stats
-    printStats(population, 0)
+    printStats(minmax=0, pop=population, gen=0)
 
     # evolution main loop
     for i in range(cfg.generationCount):
         # create initial offspring population by copying parent pop
-        offspring = population.copy()
+        offspring = copy.deepcopy(population)
 
         # select mating pool
         offspring.conductTournament()
@@ -129,6 +159,7 @@ def ev3(cfg):
         offspring.mutate()
 
         # update fitness values
+        #print(offspring.population)
         offspring.evaluateFitness()
 
         # survivor selection: elitist truncation using parents+offspring
@@ -136,7 +167,7 @@ def ev3(cfg):
         population.truncateSelect(cfg.populationSize)
 
         # print population stats
-        printStats(population, i + 1)
+        printStats(minmax=0, pop=population, gen=i + 1)
 
 
 #
@@ -145,7 +176,6 @@ def ev3(cfg):
 def main(argv=None):
     if argv is None:
         argv = sys.argv
-
     try:
         #
         # get command-line options
@@ -163,11 +193,12 @@ def main(argv=None):
         # Get EV3 config params
         cfg = EV3_Config(options.inputFileName)
 
+
         # print config params
         print(cfg)
 
         # run EV3
-        ev3(cfg)
+        ev3_problem1(cfg)
 
         if not options.quietMode:
             print('EV3 Completed!')
@@ -179,24 +210,7 @@ def main(argv=None):
         else:
             print(info)
 
-# QC passed
-def total_engergy(lattice):
-    u = [1, 2, 3]
-    t = [[10, 4, 1],
-         [4, 10, 5],
-         [1, 5, 10]]
-    size = len(lattice)
-    self_eng = 0
-    mut_eng = 0
-    for i in range(size):
-        self_eng += u[lattice[i]]
-        if i > 0:
-            mut_eng += t[lattice[i-1]][lattice[i]]
-        if i < (size - 1):
-            mut_eng += t[lattice[i]][lattice[i+1]]
-    return self_eng + mut_eng
-
 
 if __name__ == '__main__':
-    main(['-i', 'ev3_example.cfg'])
+    main(['-i', 'ev3_example.cfg', '-d'])
 

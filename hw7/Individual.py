@@ -52,18 +52,27 @@ class Individual:
     def __str__(self):
         return '%0.8e' % self.x+'\t'+'%0.8e' % self.fit+'\t'+'%0.8e' % self.sigma
 
-
+#  由於Lattice也是種Individual，有許多相似之處，於是讓前者繼承後者
 class Lattice(Individual):
-    def __init__(self, particles=None):
-        super().__init__()
-        self.x = particles
-        self.length = len(particles)
+    latticeLength = None
+    selfEnergyVector = None
+    interactionEnergyMatrix = None
+    numParticleTypes = None
+
+    def __init__(self):
+        self.x = [self.uniprng.randint(0, self.numParticleTypes-1) for i in range(self.latticeLength)]
+        self.fit = self.__class__.fitFunc(self.x, self.selfEnergyVector, self.interactionEnergyMatrix)
+        self.sigma = self.uniprng.uniform(0.9, 0.1)
 
     def crossover(self, other):
-        alpha = int(self.uniprng.random()*self.length)
+        alpha = int(self.uniprng.random()*self.latticeLength)
         tmp1 = self.x[:alpha]
         tmp2 = other.x[alpha:]
-        self.x = tmp1.extend(tmp2)
+        tmp1.extend(tmp2)
+        self.x = tmp1
+        self.fit = None
+        other.fit = None
+        # print('After cross: ', self.x)
 
     # 非 self-adaptive
     def mutate(self):
@@ -73,10 +82,19 @@ class Lattice(Individual):
         if self.sigma > self.maxSigma:
             self.sigma = self.maxSigma
 
-        for i in range(self.length):
+        for i in range(self.latticeLength):
+            # print('individual: ', self.x)
             # 突變，while迴圈為避免突變回自己
             if self.sigma > self.uniprng.random():
-                tmp = self.uniprng.randint(0, 2)
+                tmp = self.uniprng.randint(0, self.numParticleTypes-1)
                 while tmp == self.x[i]:
-                    tmp = self.uniprng.randint(0, 2)
+                    tmp = self.uniprng.randint(0, self.numParticleTypes-1)
                 self.x[i] = tmp
+        self.fit = None
+
+    def evaluateFitness(self):
+        if self.fit == None:
+            self.fit = self.__class__.fitFunc(self.x, self.selfEnergyVector, self.interactionEnergyMatrix)
+
+    def __str__(self):
+        return self.x.__str__()+'\t'+'%d' % self.fit+'\t'+'%0.8e' % self.sigma
