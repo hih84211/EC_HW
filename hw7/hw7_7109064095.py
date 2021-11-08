@@ -111,7 +111,7 @@ def printStats(minmax, pop, gen):
             if ind.fit < mval:
                 mval = ind.fit
                 sigma = ind.sigma
-            print(ind)
+            # print(ind)
         print('Min fitness', mval)
     elif minmax == 1:
         for ind in pop:
@@ -147,14 +147,16 @@ def ev3_problem1(cfg):
     Population.uniprng = uniprng
     Population.crossoverFraction = cfg.crossoverFraction
 
+    minmax = 0
+
     # create initial Population (random initialization)
     # 額外加入problem_num 以及minmax兩參數：
     # problem_num用以選擇執行作業中的problem 1或2
     # minmax用以決定所求得極值為最大值或最小值
-    population = Population(populationSize=cfg.populationSize, problem_num=1, minmax=0)
+    population = Population(populationSize=cfg.populationSize, problem_num=1, minmax=minmax)
 
     # print initial pop stats
-    printStats(minmax=0, pop=population, gen=0)
+    printStats(minmax=minmax, pop=population, gen=0)
 
     # evolution main loop
     for i in range(cfg.generationCount):
@@ -179,7 +181,7 @@ def ev3_problem1(cfg):
         population.truncateSelect(cfg.populationSize)
 
         # print population stats
-        printStats(minmax=0, pop=population, gen=i + 1)
+        printStats(minmax=minmax, pop=population, gen=i + 1)
 
 
 # EV3 for problem2:
@@ -266,13 +268,15 @@ def main(argv=None):
         '''
             Problem 1 & Problem 2 分別由 ev3_problem1(cfg) 和 ev3_problem2(cfg)執行
         '''
+
+        print('Combinatorial energy minimization start!')
         ev3_problem1(cfg)
-
         if not options.quietMode:
-            print('Combinatorial energy minimization Completed!')
+            print('Combinatorial energy minimization Completed!\n')
 
+        print('--------------------------------------------------------')
+        print('Multi-variate real-number upgrade start!')
         ev3_problem2(cfg)
-
         if not options.quietMode:
             print('Multi-variate real-number upgrade Completed!')
 

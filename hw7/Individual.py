@@ -110,7 +110,6 @@ class ND_Individual(Individual):
 
     def __init__(self):
         self.x = np.array([self.uniprng.uniform(self.minLimit, self.maxLimit) for i in range(self.dimension)])
-        print('self.x: ', self.x)
         self.fit = self.__class__.fitFunc(self.x)
         self.sigma = self.uniprng.uniform(0.9, 0.1)  # use "normalized" sigma
 
