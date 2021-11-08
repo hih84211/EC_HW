@@ -279,7 +279,7 @@ def main(argv=None):
         ev3_problem2(cfg)
         if not options.quietMode:
             print('Multi-variate real-number upgrade Completed!')
-
+        print('(預先把printStats()中顯示各個individual的程式註解掉，方便初步檢視執行效果。)')
     except Exception as info:
         if 'options' in vars() and options.debugMode:
             from traceback import print_exc
