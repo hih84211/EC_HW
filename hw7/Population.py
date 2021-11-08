@@ -28,6 +28,9 @@ class Population:
         elif problem_num == 1:
             for i in range(populationSize):
                 self.population.append(Lattice())
+        elif problem_num == 2:
+            for i in range(populationSize):
+                self.population.append(ND_Individual())
 
     def __len__(self):
         return len(self.population)
@@ -117,8 +120,7 @@ class Population:
                     else:
                         newPop.append(copy.deepcopy(self[index2]))
 
-        
-        # overwrite old pop with newPop    
+        # overwrite old pop with newPop
         self.population=newPop        
 
 

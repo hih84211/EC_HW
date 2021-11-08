@@ -18,6 +18,7 @@ import math
 from random import Random
 import copy
 from Population import *
+import numpy as np
 
 
 # EV3 Config class
@@ -36,7 +37,8 @@ class EV3_Config:
                'selfEnergyVector': (list, True),
                'interactionEnergyMatrix': (list, True),
                'latticeLength': (int, True),
-               'numParticleTypes': (int, True)}
+               'numParticleTypes': (int, True),
+               'dimension': (int, True)}
 
     # constructor
     def __init__(self, inFileName):
@@ -74,6 +76,7 @@ class EV3_Config:
 def fitnessFunc(x):
     return -10.0 - (0.04 * x) ** 2 + 10.0 * math.cos(0.04 * math.pi * x)
 
+# Energy evaluate function
 def total_engergy(lattice, u, t):
     u = u
     t = t
@@ -87,6 +90,11 @@ def total_engergy(lattice, u, t):
         if i < (size - 1):
             mut_eng += t[lattice[i]][lattice[i+1]]
     return self_eng + mut_eng
+
+# Multi-variable function
+def multi_dimension_fit_func(x):
+    # return -10.0 - (0.04*np.square(x) + 10.0 * np.cos(0.04 * np.pi * x)).sum()
+    return 10 * x.size + (np.square(x) - 10 * np.cos(2 * np.pi * x)).sum()
 
 
 # Print some useful stats to screen
@@ -109,7 +117,7 @@ def printStats(minmax, pop, gen):
             if ind.fit > mval:
                 mval = ind.fit
                 sigma = ind.sigma
-            #print(ind)
+            print(ind)
         print('Max fitness', mval)
 
     print('Sigma', sigma)
@@ -117,7 +125,7 @@ def printStats(minmax, pop, gen):
     print('')
 
 
-# EV3:
+# EV3 for problem1:
 #
 def ev3_problem1(cfg):
     # start random number generators
@@ -170,6 +178,58 @@ def ev3_problem1(cfg):
         printStats(minmax=0, pop=population, gen=i + 1)
 
 
+def ev3_problem2(cfg):
+    # start random number generators
+    uniprng = Random()
+    uniprng.seed(cfg.randomSeed)
+    normprng = Random()
+    normprng.seed(cfg.randomSeed + 101)
+
+    # set static params on classes
+    # (probably not the most elegant approach, but let's keep things simple...)
+    ND_Individual.dimension = cfg.dimension
+    ND_Individual.minLimit = cfg.minLimit
+    ND_Individual.maxLimit = cfg.maxLimit
+    ND_Individual.fitFunc = multi_dimension_fit_func
+    ND_Individual.uniprng = uniprng
+    ND_Individual.normprng = normprng
+    Population.uniprng = uniprng
+    Population.crossoverFraction = cfg.crossoverFraction
+
+    minmax = 0
+
+    # create initial Population (random initialization)
+    population = Population(populationSize=cfg.populationSize, problem_num=2, minmax=minmax)
+
+    # print initial pop stats
+    printStats(minmax=minmax, pop=population, gen=0)
+
+    # evolution main loop
+    for i in range(cfg.generationCount):
+        # create initial offspring population by copying parent pop
+        offspring = copy.deepcopy(population)
+
+        # select mating pool
+        offspring.conductTournament()
+
+        # perform crossover
+        offspring.crossover()
+
+        # random mutation
+        offspring.mutate()
+
+        # update fitness values
+        #print(offspring.population)
+        offspring.evaluateFitness()
+
+        # survivor selection: elitist truncation using parents+offspring
+        population.combinePops(offspring)
+        population.truncateSelect(cfg.populationSize)
+
+        # print population stats
+        printStats(minmax=minmax, pop=population, gen=i + 1)
+
+
 #
 # Main entry point
 #
@@ -198,7 +258,8 @@ def main(argv=None):
         print(cfg)
 
         # run EV3
-        ev3_problem1(cfg)
+        # ev3_problem1(cfg)
+        ev3_problem2(cfg)
 
         if not options.quietMode:
             print('EV3 Completed!')
@@ -212,5 +273,6 @@ def main(argv=None):
 
 
 if __name__ == '__main__':
+    # print(multi_dimension_fit_func(np.array([-21.58541456])))
     main(['-i', 'ev3_example.cfg', '-d'])
 

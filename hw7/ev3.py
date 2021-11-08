@@ -110,7 +110,7 @@ def ev3(cfg):
       
     
     #create initial Population (random initialization)
-    population=Population(cfg.populationSize)
+    population=Population(populationSize=cfg.populationSize, problem_num=0, minmax=1)
         
     #print initial pop stats    
     printStats(population,0)
