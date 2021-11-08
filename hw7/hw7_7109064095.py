@@ -91,6 +91,7 @@ def total_engergy(lattice, u, t):
             mut_eng += t[lattice[i]][lattice[i+1]]
     return self_eng + mut_eng
 
+
 # Multi-variable function
 def multi_dimension_fit_func(x):
     # return -10.0 - (0.04*np.square(x) + 10.0 * np.cos(0.04 * np.pi * x)).sum()
@@ -98,6 +99,7 @@ def multi_dimension_fit_func(x):
 
 
 # Print some useful stats to screen
+# 可由minmax參數選擇呈現最大值或最小值
 def printStats(minmax, pop, gen):
     print('Generation:', gen)
     avgval = 0
@@ -126,7 +128,6 @@ def printStats(minmax, pop, gen):
 
 
 # EV3 for problem1:
-#
 def ev3_problem1(cfg):
     # start random number generators
     uniprng = Random()
@@ -147,7 +148,10 @@ def ev3_problem1(cfg):
     Population.crossoverFraction = cfg.crossoverFraction
 
     # create initial Population (random initialization)
-    population = Population(cfg.populationSize, 1, 0)
+    # 額外加入problem_num 以及minmax兩參數：
+    # problem_num用以選擇執行作業中的problem 1或2
+    # minmax用以決定所求得極值為最大值或最小值
+    population = Population(populationSize=cfg.populationSize, problem_num=1, minmax=0)
 
     # print initial pop stats
     printStats(minmax=0, pop=population, gen=0)
@@ -178,6 +182,7 @@ def ev3_problem1(cfg):
         printStats(minmax=0, pop=population, gen=i + 1)
 
 
+# EV3 for problem2:
 def ev3_problem2(cfg):
     # start random number generators
     uniprng = Random()
@@ -233,6 +238,7 @@ def ev3_problem2(cfg):
 #
 # Main entry point
 #
+#
 def main(argv=None):
     if argv is None:
         argv = sys.argv
@@ -257,12 +263,18 @@ def main(argv=None):
         # print config params
         print(cfg)
 
-        # run EV3
-        # ev3_problem1(cfg)
+        '''
+            Problem 1 & Problem 2 分別由 ev3_problem1(cfg) 和 ev3_problem2(cfg)執行
+        '''
+        ev3_problem1(cfg)
+
+        if not options.quietMode:
+            print('Combinatorial energy minimization Completed!')
+
         ev3_problem2(cfg)
 
         if not options.quietMode:
-            print('EV3 Completed!')
+            print('Multi-variate real-number upgrade Completed!')
 
     except Exception as info:
         if 'options' in vars() and options.debugMode:
@@ -273,6 +285,6 @@ def main(argv=None):
 
 
 if __name__ == '__main__':
-    # print(multi_dimension_fit_func(np.array([-21.58541456])))
+    # Problem 1 & 2已包在main()中，並共用同一個.cfg檔案
     main(['-i', 'ev3_example.cfg', '-d'])
 

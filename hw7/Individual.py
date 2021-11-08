@@ -53,21 +53,9 @@ class Individual:
     def __str__(self):
         return '%0.8e' % self.x+'\t'+'%0.8e' % self.fit+'\t'+'%0.8e' % self.sigma
 
-# 使用numpy_array可簡單的將1-D individual改寫成N-D individual
-class ND_Individual(Individual):
-    dimension = 1
 
-    def __init__(self):
-        self.x = np.array([self.uniprng.uniform(self.minLimit, self.maxLimit) for i in range(self.dimension)])
-        print('self.x: ', self.x)
-        self.fit = self.__class__.fitFunc(self.x)
-        self.sigma = self.uniprng.uniform(0.9, 0.1)  # use "normalized" sigma
-
-    def __str__(self):
-        return self.x.__str__()+'\t'+'%0.8e' % self.fit+'\t'+'%0.8e' % self.sigma
-
-
-#  由於Lattice也是種Individual，有許多相似之處，於是讓前者繼承後者
+# Individual of problem 1
+# 由於Lattice也是種Individual，有許多相似之處，於是讓前者繼承後者
 class Lattice(Individual):
     latticeLength = None
     selfEnergyVector = None
@@ -113,3 +101,18 @@ class Lattice(Individual):
 
     def __str__(self):
         return self.x.__str__()+'\t'+'%d' % self.fit+'\t'+'%0.8e' % self.sigma
+
+
+# Individual of problem 2
+# 使用numpy_array可簡單的將1-D individual改寫成N-D individual
+class ND_Individual(Individual):
+    dimension = 1
+
+    def __init__(self):
+        self.x = np.array([self.uniprng.uniform(self.minLimit, self.maxLimit) for i in range(self.dimension)])
+        print('self.x: ', self.x)
+        self.fit = self.__class__.fitFunc(self.x)
+        self.sigma = self.uniprng.uniform(0.9, 0.1)  # use "normalized" sigma
+
+    def __str__(self):
+        return self.x.__str__()+'\t'+'%0.8e' % self.fit+'\t'+'%0.8e' % self.sigma
