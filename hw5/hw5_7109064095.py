@@ -144,7 +144,7 @@ def ev2(cfg):
             unborn = Individual(ux, fitnessFunc(ux))
             # random mutation using uncorrelated mutation
             if prng.random() <= mute_rate:
-                # mutate sigma first
+                # mutate mutRate first
                 new_stddev = stddev * math.exp(tau * prng.normalvariate(0, 1))
                 if new_stddev < min_stddev:
                     new_stddev = min_stddev

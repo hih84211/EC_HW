@@ -23,7 +23,7 @@ class Individual:
     def __init__(self):
         self.x = self.uniprng.uniform(self.minLimit, self.maxLimit)
         self.fit = self.__class__.fitFunc(self.x)
-        self.sigma = self.uniprng.uniform(0.9, 0.1)  # use "normalized" sigma
+        self.sigma = self.uniprng.uniform(0.9, 0.1)  # use "normalized" mutRate
         
     def crossover(self, other):
         # perform crossover "in-place"
@@ -111,7 +111,7 @@ class ND_Individual(Individual):
     def __init__(self):
         self.x = np.array([self.uniprng.uniform(self.minLimit, self.maxLimit) for i in range(self.dimension)])
         self.fit = self.__class__.fitFunc(self.x)
-        self.sigma = self.uniprng.uniform(0.9, 0.1)  # use "normalized" sigma
+        self.sigma = self.uniprng.uniform(0.9, 0.1)  # use "normalized" mutRate
 
     def __str__(self):
         return self.x.__str__()+'\t'+'%0.8e' % self.fit+'\t'+'%0.8e' % self.sigma

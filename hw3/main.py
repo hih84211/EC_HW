@@ -50,7 +50,7 @@ if __name__ == '__main__':
     prng = Random()
     prng.seed(797)
     '''uni_list = list(prng.uniform(.0, 1.) for i in range(10000))
-    normal_list = list(prng.gauss(mu=5., sigma=2.) for i in range(10000))
+    normal_list = list(prng.gauss(mu=5., mutRate=2.) for i in range(10000))
     # print(random_list)
     n, bins, patches = plt.hist(uni_list, bins=50, density=True, facecolor='g')
     plt.axis([0, 1, 0, 2])

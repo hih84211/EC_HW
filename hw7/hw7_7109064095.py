@@ -104,13 +104,13 @@ def printStats(minmax, pop, gen):
     print('Generation:', gen)
     avgval = 0
     mval = pop[0].fit
-    sigma = pop[0].sigma
+    sigma = pop[0].mutRate
     if minmax == 0:
         for ind in pop:
             avgval += ind.fit
             if ind.fit < mval:
                 mval = ind.fit
-                sigma = ind.sigma
+                sigma = ind.mutRate
             # print(ind)
         print('Min fitness', mval)
     elif minmax == 1:
@@ -118,7 +118,7 @@ def printStats(minmax, pop, gen):
             avgval += ind.fit
             if ind.fit > mval:
                 mval = ind.fit
-                sigma = ind.sigma
+                sigma = ind.mutRate
             print(ind)
         print('Max fitness', mval)
 
@@ -134,6 +134,7 @@ def ev3_problem1(cfg):
     uniprng.seed(cfg.randomSeed)
     normprng = Random()
     normprng.seed(cfg.randomSeed + 101)
+
 
     # set static params on classes
     # (probably not the most elegant approach, but let's keep things simple...)
